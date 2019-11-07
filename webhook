@@ -1,0 +1,85 @@
+/* Handle Hasura event trigger
+ * This is what the structure of the event payload looks like
+ *
+ * {
+ *   "event": {
+ *       "op": "<op-name>",
+ *       "data": {
+ *         "old": <old-object>,
+ *         "new": <new-object>
+ *       }
+ *   },
+ *   "created_at": "<timestamp>",
+ *   "id": "<uuid>",
+ *   "trigger": {
+ *       "name": "<name-of-trigger>",
+ *       "id": "<event-uuid>"
+ *   },
+ *   "table":  {
+ *       "schema": "<schema-name>",
+ *       "name": "<table-name>"
+ *   }
+ * }
+ *
+ */
+import React from 'react';
+import ReactDOM from 'react-dom';
+import './css/index.css';
+import App from './components/App';
+import * as serviceWorker from './serviceWorker';
+import { createClient, Provider, defaultExchanges } from "urql";
+
+//GraphQL Resolver to change validity field in data to FALSE
+updateValidity: (_, { id }) => { 
+ const data = find(data, { id: id }); 
+ if (!data) {
+   throw new Error(`Couldnâ€™t find data with id ${Id}`);
+ }
+data.validity = FALSE;
+ return data;
+}
+
+
+exports.handler = (lambdaEvent, context, cb) => {
+  //the JSON received from the db
+  const hasuraTriggerPayload = JSON.parse(lambdaEvent.body);
+
+  console.log(hasuraTriggerPayload);
+  const hasuraData = hasuraTriggerPayload.event.data.new;
+  //pattern for id field
+  var pattern1 = new RegExp('(\d{7})', 'i');
+  //pattern for invalid data
+  var pattern2 = new RegExp('(00:00:00|0.00)', 'i');
+  if(pattern.test(hasuraData)){
+     //mutate the db to make row's  'validity' column set to FALSE
+	 
+	const client = createClient({
+	url: "https://charge-data.herokuapp.com/v1/graphql",
+	exchanges: defaultExchanges
+	});
+
+	ReactDOM.render(<Provider value={client}><App /></Provider>, document.getElementById('root'));
+	serviceWorker.unregister();
+	const Overview = ({ location }) => {
+	const [{ fetching, error, data }] = useQuery({
+		mutation {
+		updateValidity ( id:1)
+		{
+		id
+		}
+  }
+	});
+
+	if (fetching) {
+		return "Loading";
+	} else if (error) {
+		console.log(Error Message: ${error});
+		return "Error";
+	}
+  }
+  cb(null, {
+    statusCode: 200,
+    body: JSON.stringify({receivedData: hasuraData})
+  });
+  
+};
