@@ -22,22 +22,32 @@
  * }
  *
  */
-import React from 'react';
-import ReactDOM from 'react-dom';
-import './css/index.css';
-import App from './components/App';
-import * as serviceWorker from './serviceWorker';
-import { createClient, Provider, defaultExchanges } from "urql";
+
+import { request } from "graphql-request";
+
+/**
+ * JSON as input
+ * 
+ */
+
 
 //GraphQL Resolver to change validity field in data to FALSE
-updateValidity: (_, { id }) => { 
- const data = find(data, { id: id }); 
- if (!data) {
-   throw new Error(`Couldnâ€™t find data with id ${Id}`);
- }
-data.validity = FALSE;
- return data;
+updateValidity: (_, { id }) => {
+  const data = find(data, { id: id });
+  if (!data) {
+    throw new Error(`Couldn't find data with id ${Id}`);
+  }
+  data.validity = FALSE;
+  return data;
 }
+
+const query = `{
+    mutation {
+      updateValidity(id: jsonID) {
+        id
+      }
+    }
+}`
 
 
 exports.handler = (lambdaEvent, context, cb) => {
@@ -46,40 +56,24 @@ exports.handler = (lambdaEvent, context, cb) => {
 
   console.log(hasuraTriggerPayload);
   const hasuraData = hasuraTriggerPayload.event.data.new;
-  //pattern for id field
-  var pattern1 = new RegExp('(\d{7})', 'i');
+
+  const jsonID = hasuraData.id;
+
   //pattern for invalid data
-  var pattern2 = new RegExp('(00:00:00|0.00)', 'i');
-  if(pattern.test(hasuraData)){
-     //mutate the db to make row's  'validity' column set to FALSE
-	 
-	const client = createClient({
-	url: "https://charge-data.herokuapp.com/v1/graphql",
-	exchanges: defaultExchanges
-	});
+  var pattern = new RegExp('(00:00:00|0.00)', 'i');
 
-	ReactDOM.render(<Provider value={client}><App /></Provider>, document.getElementById('root'));
-	serviceWorker.unregister();
-	const Overview = ({ location }) => {
-	const [{ fetching, error, data }] = useQuery({
-		mutation {
-		updateValidity ( id:1)
-		{
-		id
-		}
-  }
-	});
+  if (pattern.test(hasuraData)) {
+    //mutate the db to make row's  'validity' column set to FALSE
 
-	if (fetching) {
-		return "Loading";
-	} else if (error) {
-		console.log(Error Message: ${error});
-		return "Error";
-	}
+    request("https://charge-data.herokuapp.com/v1/graphql", query).then(data =>
+      console.log(data)
+    );
   }
+
+  // 
   cb(null, {
     statusCode: 200,
-    body: JSON.stringify({receivedData: hasuraData})
+    body: JSON.stringify({ receivedData: hasuraData })
   });
-  
+
 };
