@@ -23,31 +23,7 @@
  *
  */
 
-import { request } from "graphql-request";
-
-/**
- * JSON as input
- * 
- */
-
-
-//GraphQL Resolver to change validity field in data to FALSE
-updateValidity: (_, { id }) => {
-  const data = find(data, { id: id });
-  if (!data) {
-    throw new Error(`Couldn't find data with id ${Id}`);
-  }
-  data.validity = FALSE;
-  return data;
-}
-
-const query = `{
-    mutation {
-      updateValidity(id: jsonID) {
-        id
-      }
-    }
-}`
+const { request } = require('graphql-request')
 
 
 exports.handler = (lambdaEvent, context, cb) => {
@@ -58,6 +34,20 @@ exports.handler = (lambdaEvent, context, cb) => {
   const hasuraData = hasuraTriggerPayload.event.data.new;
 
   const jsonID = hasuraData.id;
+  
+
+const query = `{
+    mutation inValidate {
+    update_chargedata(where: {id: {_eq: jsonID}}, _set: {validity: false}) {
+    affected_rows
+    returning {
+      id
+    }
+  }
+}
+
+
+}`
 
   //pattern for invalid data
   var pattern = new RegExp('(00:00:00|0.00)', 'i');
