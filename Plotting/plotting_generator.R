@@ -2,16 +2,13 @@
   # Station 
   # Start date (Month & Year)
   # End date (Month & Year)
+start.time <- Sys.time()
 
 library(lubridate)
 library(ggplot2)
-library(DBI)
-library(odbc)
-library(rstudioapi)
-
 
 # Load .csv file
-dir <- "C:/Users/Mina/Documents/GitHub/powerpuff-girls/Resources"
+dir <- "C:/Users/Ian/Documents/GitHub/powerpuff-girls/Resources"
 path <- file.path(dir, "Data_HACC.csv")
 data <- read.table(file=path, header=TRUE, sep=",")
 
@@ -63,6 +60,9 @@ plot_data <- data.frame(full_date,time,duration_val)
 p4 <- ggplot(plot_data, aes(fill=time, y=duration_val, x=full_date)) + 
   geom_bar(position="stack", stat="identity")
 
+end.time <- Sys.time()
+time.taken <- end.time - start.time
+time.taken
 # Save plot to picture
 ggsave("frequency_plot.png", plot=p1 ,width=24,height=9,units="cm")
 ggsave("energy_plot.png", plot=p2 ,width=24,height=9,units="cm")
