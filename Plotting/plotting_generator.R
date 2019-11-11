@@ -2,11 +2,13 @@
   # Station 
   # Start date (Month & Year)
   # End date (Month & Year)
-  # Type of plot(# of sessions, energy, gross revenue, # of minutes, or all)
-    # x = 1, 2, 3, 4, 5 for each plot type respectively
 
 library(lubridate)
 library(ggplot2)
+library(DBI)
+library(odbc)
+library(rstudioapi)
+
 
 # Load .csv file
 dir <- "C:/Users/Mina/Documents/GitHub/powerpuff-girls/Resources"
@@ -39,17 +41,30 @@ for (val in time) {
 full_date = months(date)
 
 # Values for each plot
-if (x == 1){val <- c(rep(1,length(data$Start.Time)))}
-if (x == 2){val <- data$Energy.kWh.}
-if (x == 3){val <- as.numeric(gsub('[$]', '', data$Session.Amount))}
-if (x == 4){val <- as.numeric(data$Duration)}
-  # if (x == 5) plot all 
+freq_val <- c(rep(1,length(data$Start.Time)))
+energy_val <- data$Energy.kWh.
+cost_val <- as.numeric(gsub('[$]', '', data$Session.Amount))
+duration_val <- as.numeric(data$Duration)
 
 # Plot
-plot_data <- data.frame(full_date,time,i)
-p <- ggplot(plot_data, aes(fill=time, y=val, x=full_date)) + 
+plot_data <- data.frame(full_date,time,freq_val)
+p1 <- ggplot(plot_data, aes(fill=time, y=freq_val, x=full_date)) + 
   geom_bar(position="stack", stat="identity")
-plot(p)
+
+plot_data <- data.frame(full_date,time,energy_val)
+p2 <- ggplot(plot_data, aes(fill=time, y=energy_val, x=full_date)) + 
+  geom_bar(position="stack", stat="identity")
+
+plot_data <- data.frame(full_date,time,cost_val)
+p3 <- ggplot(plot_data, aes(fill=time, y=cost_val, x=full_date)) + 
+  geom_bar(position="stack", stat="identity")
+
+plot_data <- data.frame(full_date,time,duration_val)
+p4 <- ggplot(plot_data, aes(fill=time, y=duration_val, x=full_date)) + 
+  geom_bar(position="stack", stat="identity")
 
 # Save plot to picture
-ggsave("test.png", plot=last_plot(),width=24,height=9,units="cm")
+ggsave("frequency_plot.png", plot=p1 ,width=24,height=9,units="cm")
+ggsave("energy_plot.png", plot=p2 ,width=24,height=9,units="cm")
+ggsave("cost_plot.png", plot=p3 ,width=24,height=9,units="cm")
+ggsave("duration_plot.png", plot=p4 ,width=24,height=9,units="cm")
