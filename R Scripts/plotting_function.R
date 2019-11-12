@@ -6,21 +6,24 @@
 library(lubridate)
 library(ggplot2)
 library(dplyr)
-library(odbc)
-library(DBI)
-library(RPostgres)
-library(RPostgreSQL)
+library(viridis)
+library(hrbrthemes)
+
+#library(odbc)
+#library(DBI)
+#library(RPostgres)
+#library(RPostgreSQL)
 
 
 # User input
 userStation <- "A"
-userStartTime <- "2018-09-09 00:00:00"
-userEndTime <- "2018-09-15 00:00:00"
+userStartTime <- "2018-09-01 00:00:00"
+userEndTime <- "2019-08-31 00:00:00"
 
 # Load .csv file
-#dir <- "C:/Users/Ian/Documents/GitHub/powerpuff-girls/Resources"
-#path <- file.path(dir, "Data_HACC.csv")
-#data <- read.table(file=path, header=TRUE, sep=",")
+dir <- "C:/Users/Ian/Documents/GitHub/powerpuff-girls/Resources"
+path <- file.path(dir, "Data_HACC.csv")
+data <- read.table(file=path, header=TRUE, sep=",")
 
 
 
@@ -56,34 +59,38 @@ for (val in time) {
 full_date = months(date, abbr=TRUE)
 
 # Values for each plot
-freq_val <- c(rep(1,length(Fdata$Start.Time)))
-energy_val <- Fdata$Energy.kWh.
-cost_val <- as.numeric(gsub('[$]', '', Fdata$Session.Amount))
-duration_val <- as.numeric(Fdata$Duration)
+Sessions <- c(rep(1,length(Fdata$Start.Time)))
+Energy <- Fdata$Energy.kWh.
+Cost <- as.numeric(gsub('[$]', '', Fdata$Session.Amount))
+Duration <- time_length(hms(Fdata$Duration),unit="minute")
 
 # Plot
-plot_data1 <- data.frame(full_date,time,freq_val)
-p1 <- ggplot(plot_data1, aes(fill=time, y=freq_val, x=full_date)) + 
+plot_data1 <- data.frame(full_date,time,Sessions)
+p1 <- ggplot(plot_data1, aes(fill=time, y=Sessions, x=full_date)) + 
   geom_bar(position="stack", stat="identity") + 
-  ggtitle(paste("Station",userStation,"-- # of sessions","by time of day",sep=" "))
+  ggtitle(paste("Station",userStation,"-- # of sessions","by time of day",sep=" ")) +
+  scale_fill_viridis(discrete = T) + theme_ipsum() + xlab("")
 
-plot_data2 <- data.frame(full_date,time,energy_val)
-p2 <- ggplot(plot_data2, aes(fill=time, y=energy_val, x=full_date)) + 
+plot_data2 <- data.frame(full_date,time,Energy)
+p2 <- ggplot(plot_data2, aes(fill=time, y=Energy, x=full_date)) + 
   geom_bar(position="stack", stat="identity") + 
-  ggtitle(paste("Station",userStation,"-- Energy (kwh)","by time of day",sep=" "))
+  ggtitle(paste("Station",userStation,"-- Energy (kwh)","by time of day",sep=" ")) +
+  scale_fill_viridis(discrete = T) + theme_ipsum() + xlab("")
 
-plot_data3 <- data.frame(full_date,time,cost_val)
-p3 <- ggplot(plot_data3, aes(fill=time, y=cost_val, x=full_date)) + 
+plot_data3 <- data.frame(full_date,time,Cost)
+p3 <- ggplot(plot_data3, aes(fill=time, y=Cost, x=full_date)) + 
   geom_bar(position="stack", stat="identity") +
-  ggtitle(paste("Station",userStation,"-- Gross Revenue ($)","by time of day",sep=" "))
+  ggtitle(paste("Station",userStation,"-- Gross Revenue ($)","by time of day",sep=" ")) +
+  scale_fill_viridis(discrete = T) + theme_ipsum() + xlab("")
 
-plot_data4 <- data.frame(full_date,time,duration_val)
-p4 <- ggplot(plot_data4, aes(fill=time, y=duration_val, x=full_date)) + 
+plot_data4 <- data.frame(full_date,time,Duration)
+p4 <- ggplot(plot_data4, aes(fill=time, y=Duration, x=full_date)) + 
   geom_bar(position="stack", stat="identity") +
-  ggtitle(paste("Station",userStation,"-- # of minutes","by time of day",sep=" "))
+  ggtitle(paste("Station",userStation,"-- # of minutes","by time of day",sep=" ")) +
+  scale_fill_viridis(discrete = T) + theme_ipsum() + xlab("")
 
 # Save plot to picture
-ggsave("frequency_plot.png", plot=p1 ,width=24,height=9,units="cm")
-ggsave("energy_plot.png", plot=p2 ,width=24,height=9,units="cm")
-ggsave("cost_plot.png", plot=p3 ,width=24,height=9,units="cm")
-ggsave("duration_plot.png", plot=p4 ,width=24,height=9,units="cm")
+ggsave("frequency_plot.png", plot=p1 )
+ggsave("energy_plot.png", plot=p2 )
+ggsave("cost_plot.png", plot=p3 )
+ggsave("duration_plot.png", plot=p4 )
