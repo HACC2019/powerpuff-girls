@@ -6,6 +6,10 @@
 library(lubridate)
 library(ggplot2)
 library(dplyr)
+library(odbc)
+library(DBI)
+library(RPostgres)
+library(RPostgreSQL)
 
 
 # User input
@@ -13,14 +17,14 @@ userStation <- "A"
 userStartTime <- "2018-09-09 00:00:00"
 userEndTime <- "2018-09-15 00:00:00"
 
-
-
-
-
 # Load .csv file
-dir <- "C:/Users/Ian/Documents/GitHub/powerpuff-girls/Resources"
-path <- file.path(dir, "Data_HACC.csv")
-data <- read.table(file=path, header=TRUE, sep=",")
+#dir <- "C:/Users/Ian/Documents/GitHub/powerpuff-girls/Resources"
+#path <- file.path(dir, "Data_HACC.csv")
+#data <- read.table(file=path, header=TRUE, sep=",")
+
+
+
+
 
 # Initialize variables
 peak_time <- c("17:00:00", "22:00:00")
